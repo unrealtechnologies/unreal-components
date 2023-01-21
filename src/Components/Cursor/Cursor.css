@@ -1,0 +1,32 @@
+.cursor {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 100%;
+    background: white;
+    pointer-events: none;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+    transition-duration: .15s;
+    --tw-text-opacity: 1;
+    color: rgb(0 0 0/var(--tw-text-opacity));
+    mix-blend-mode: difference;
+    z-index: 9999;
+}
+
+.cursor img {
+    height: inherit;
+    width: inherit;
+    padding: 0;
+    display: block;
+}
+
+html,
+body {
+    cursor: none;
+    z-index: -1;
+    background: #121417;
+}
