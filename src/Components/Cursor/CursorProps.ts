@@ -1,4 +1,6 @@
 export default interface CursorProp {
-    hexColor: string,
+    hexColor: string
     svg?: string | undefined
+    size?: number
+    sizeLarge?: number
 }

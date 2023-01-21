@@ -2,79 +2,87 @@ import './Cursor.css'
 import {useEffect, useRef, useState} from "react";
 import { Mouse, Ticker, Viewport } from '@unreal/pan';
 import CursorProp from "./CursorProps";
-interface MousePosition {
-    x: number
-    y: number
-}
+import CursorState from "./CursorState";
 
-function Lerp(start: number, end: number, t: number): number {
-    return (1 - t) * start + t * end
+const setState = (props: CursorProp): CursorState => {
+    return {
+        color: props.hexColor,
+        svg: props.svg,
+        visible: false,
+        x: 0,
+        y: 0,
+        scale: 1,
+        size: props.size !== undefined ? props.size : 20,
+        sizeLarge: props.sizeLarge !== undefined ? props.sizeLarge : 40,
+        originalSize: props.size !== undefined ? props.size : 20
+    }
 }
 
 export default function Cursor(props: CursorProp) {
+    const [cursor, setCursor] = useState<CursorState>(setState(props))
+    const [viewport, setViewport] = useState({
+        width: 0,
+        height: 0
+    })
+
     const cursorElemRef = useRef(null);
-    const [mousePosition, setMousePosition] = useState<MousePosition>({x: 0, y: 0})
-    const [mouseVisible, setMouseVisible] = useState(false)
-    // const [cursorSize, setCursorSize] = useState(32)
-    const [cursorScale, setCursorScale] = useState(1)
-    const [viewportWidthHeight, setViewportWidthHeight] = useState({width: 0, height: 0})
-    const [cursorColor, setCursorColor] = useState(props.hexColor)
-    const [SVGImage, setSVGImage] = useState(props.svg)
+    const myCursorState = useRef(cursor);
+    const myViewportState = useRef(viewport)
+
+    const updateCursorState = (cursorState: any) => {
+        myCursorState.current = cursorState
+        setCursor(cursorState)
+    }
+
+    const updateViewportState = (viewportState: any) => {
+        myViewportState.current = viewportState
+        setViewport(viewportState)
+    }
+
 
     useEffect(() => {
-        console.log(viewportWidthHeight)
-    }, [viewportWidthHeight])
-
-    useEffect(() => {
-        const position: MousePosition = {
-            x: 0,
-            y: 0
-        }
-        const animatedPosition: MousePosition = {
-            x: 0,
-            y: 0
-        }
-
-        const viewportInformation = {
-            width: 0,
-            height: 0
-        }
-
-        let cursorSize = 32;
-        let animatedCursorSize = 32;
-        let mouseFadeOffsetSize = 20;
-
+        // get instances of our tools
         const mouse = Mouse.getInstance()
         const ticker = Ticker.getInstance()
         const viewport = Viewport.getInstance({fireViewportInformationOnListen: true})
 
+        // create a 'shadowState' to help ease animations with react. setState cause it to do a lot of unneeded
+        // calculations and doesn't animate well. So in the shadow state we store the actual end values
+        // and in the React state we set animation values. As they should be rendered.
+        const shadowState: CursorState = setState(props)
+
         viewport!.on('resize', (resizeEvent: any) => {
-            viewportInformation.width = resizeEvent.width;
-            viewportInformation.height = resizeEvent.height;
-            setViewportWidthHeight({
+            updateViewportState({
                 width: resizeEvent.width,
                 height: resizeEvent.height
             })
         })
 
-        mouse!.on('move', (mouseEvent: any) => {
-            if (!mouseVisible) {
-                setMouseVisible(true)
+        mouse!.on('move', (mouseEvent: any, rawEvent: any) => {
+            // console.log(rawEvent)
+            if (!myCursorState.current.visible) {
+                shadowState.visible = true
             }
-            position.x = mouseEvent.x
-            position.y = mouseEvent.y
+            shadowState.x = mouseEvent.x
+            shadowState.y = mouseEvent.y
 
-
-            if (mouseEvent.x < mouseFadeOffsetSize ||
-                mouseEvent.x > viewportInformation.width - mouseFadeOffsetSize ||
-                mouseEvent.y < mouseFadeOffsetSize ||
-                mouseEvent.y > viewportInformation.height - mouseFadeOffsetSize
-            ) {
-                cursorSize = 0
-            } else if (mouseEvent.y > 500) {
-                cursorSize = 64
+            if (rawEvent.target.closest('a') !== null ||
+                rawEvent.target.tagName === 'BUTTON' ||
+                rawEvent.target.tagName === 'SELECT',
+                rawEvent.target.tagName === 'TEXTAREA') {
+                shadowState.size = 40
             } else {
-                cursorSize = 32
+                const mouseFadeOffsetSize = 20
+
+                if (mouseEvent.x < mouseFadeOffsetSize ||
+                    mouseEvent.x > myViewportState.current.width - mouseFadeOffsetSize ||
+                    mouseEvent.y < mouseFadeOffsetSize ||
+                    mouseEvent.y > myViewportState.current.height - mouseFadeOffsetSize
+                ) {
+                    shadowState.size = 0
+                } else {
+                    shadowState.size = shadowState.originalSize
+                }
             }
         })
 
@@ -84,7 +92,6 @@ export default function Cursor(props: CursorProp) {
                 const width = elem.offsetWidth
                 const height = elem.offsetHeight
 
-
                 // the idea here is that the animation on new Mac laptops is really nice, because 120hz
                 // on 60fps devices it feels a bit slower, so double the speed, usually this is not a problem
                 // when animating against time elapsed, but this animation depends on times ran.
@@ -92,35 +99,31 @@ export default function Cursor(props: CursorProp) {
 
                 // we apply a lerp effect to smooth our movement,
                 // plus calculate the size of the cursor to factor it into the position
-                animatedPosition.x += ((position.x - (width/2)) - animatedPosition.x) * 0.1 * speed
-                animatedPosition.y += ((position.y - (height/2)) - animatedPosition.y) * 0.1 * speed
-
-
-                //animate mouse position
-                setMousePosition({
-                    x: animatedPosition.x,
-                    y: animatedPosition.y
-                })
-
                 //animated mouse size, cursorSize is used to determine scaling effect.
-                animatedCursorSize += (cursorSize - animatedCursorSize) * 0.1 * speed
-                setCursorScale(animatedCursorSize / width)
+                const size = myCursorState.current.size + (shadowState.size - myCursorState.current.size) * 0.1 * speed
+                updateCursorState({
+                    x: myCursorState.current.x + ((shadowState.x - (width / 2)) - myCursorState.current.x) * 0.1 * speed,
+                    y: myCursorState.current.y + ((shadowState.y - (height / 2)) - myCursorState.current.y) * 0.1 * speed,
+                    size: size,
+                    scale: size / width, // scale by width of element
+                    color: myCursorState.current.color,
+                    svg: myCursorState.current.svg,
+                    visible: shadowState.visible
+                })
             }
         })
     }, [])
-
-    const display = mouseVisible ? 'flex' : 'none'
-//    const transformString = `matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${mousePosition.x}, ${mousePosition.y}, 0, 1)`
-    const transformString = `matrix(${cursorScale}, 0, 0, ${cursorScale}, ${mousePosition.x}, ${mousePosition.y})`
+    const display = cursor.visible ? 'flex' : 'none'
+    const transformString = `matrix(${cursor.scale}, 0, 0, ${cursor.scale}, ${cursor.x}, ${cursor.y})`
     return (
         <>
             <div ref={cursorElemRef} className="cursor" style={{
-                    backgroundColor: `${cursorColor}`,
+                    backgroundColor: `${cursor.color}`,
                     display: `${display}`,
                     transform: `${transformString}`
                 }}>
-                {SVGImage !== undefined &&
-                    <img src={SVGImage} className="bean" alt="Bean Cursor" />
+                {cursor.svg !== undefined &&
+                    <img src={cursor.svg} className="" alt="cursor image" />
                 }
             </div>
         </>
