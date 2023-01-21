@@ -59,7 +59,6 @@ export default function Cursor(props: CursorProp) {
         })
 
         mouse!.on('move', (mouseEvent: any, rawEvent: any) => {
-            // console.log(rawEvent)
             if (!myCursorState.current.visible) {
                 shadowState.visible = true
             }
