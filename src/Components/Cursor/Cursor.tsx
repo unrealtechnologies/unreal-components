@@ -1,6 +1,6 @@
 import './Cursor.css'
-import {useEffect, useRef, useState} from "react";
-import { Mouse, Ticker, Viewport } from '@unreal/pan';
+import React, { useEffect, useRef, useState}  from 'react';
+import { Mouse, Ticker, Viewport, Detector } from '@unreal/pan';
 import CursorProp from "./CursorProps";
 import CursorState from "./CursorState";
 
@@ -29,7 +29,7 @@ export default function Cursor(props: CursorProp) {
     const myCursorState = useRef(cursor);
     const myViewportState = useRef(viewport)
 
-    const updateCursorState = (cursorState: any) => {
+    const updateCursorState = (cursorState: CursorState) => {
         myCursorState.current = cursorState
         setCursor(cursorState)
     }
@@ -39,8 +39,10 @@ export default function Cursor(props: CursorProp) {
         setViewport(viewportState)
     }
 
-
     useEffect(() => {
+        if (Detector.getInstance()?.isTouchScreen()) {
+            return
+        }
         // get instances of our tools
         const mouse = Mouse.getInstance()
         const ticker = Ticker.getInstance()
@@ -67,12 +69,11 @@ export default function Cursor(props: CursorProp) {
 
             if (rawEvent.target.closest('a') !== null ||
                 rawEvent.target.tagName === 'BUTTON' ||
-                rawEvent.target.tagName === 'SELECT',
+                rawEvent.target.tagName === 'SELECT' ||
                 rawEvent.target.tagName === 'TEXTAREA') {
-                shadowState.size = 40
+                shadowState.size = shadowState.sizeLarge
             } else {
                 const mouseFadeOffsetSize = 20
-
                 if (mouseEvent.x < mouseFadeOffsetSize ||
                     mouseEvent.x > myViewportState.current.width - mouseFadeOffsetSize ||
                     mouseEvent.y < mouseFadeOffsetSize ||
@@ -107,7 +108,10 @@ export default function Cursor(props: CursorProp) {
                     scale: size / width, // scale by width of element
                     color: myCursorState.current.color,
                     svg: myCursorState.current.svg,
-                    visible: shadowState.visible
+                    visible: shadowState.visible,
+                    originalSize: myCursorState.current.originalSize,
+                    sizeLarge: myCursorState.current.sizeLarge,
+
                 })
             }
         })
@@ -122,7 +126,7 @@ export default function Cursor(props: CursorProp) {
                     transform: `${transformString}`
                 }}>
                 {cursor.svg !== undefined &&
-                    <img src={cursor.svg} className="" alt="cursor image" />
+                    <img src={cursor.svg} className="" alt="cursor" />
                 }
             </div>
         </>
