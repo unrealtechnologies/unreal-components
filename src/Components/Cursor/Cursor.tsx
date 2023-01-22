@@ -1,6 +1,6 @@
 import './Cursor.css'
 import React, { useEffect, useRef, useState}  from 'react';
-import { Mouse, Ticker, Viewport, Detector } from '@unreal/pan';
+import { Mouse, Ticker, Viewport } from '@unreal/pan';
 import CursorProp from "./CursorProps";
 import CursorState from "./CursorState";
 
