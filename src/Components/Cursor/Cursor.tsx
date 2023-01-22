@@ -40,9 +40,6 @@ export default function Cursor(props: CursorProp) {
     }
 
     useEffect(() => {
-        if (Detector.getInstance()?.isTouchScreen()) {
-            return
-        }
         // get instances of our tools
         const mouse = Mouse.getInstance()
         const ticker = Ticker.getInstance()

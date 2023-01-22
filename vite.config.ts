@@ -12,7 +12,7 @@ export default defineConfig({
             "@unreal/pan",
             "react",
             "react-dom"
-        ]
+        ],
       },
     minify: false,
     lib: {
@@ -23,6 +23,10 @@ export default defineConfig({
       fileName: (format) => `unreal-components.${format}.js`
     },
     target: 'es2015',
-    sourceMap: false
-  }
+    sourceMap: false,
+          globals: {
+              react: 'react',
+              pan: '@unreal/pan'
+          }
+      }
 })
