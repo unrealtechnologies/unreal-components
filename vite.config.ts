@@ -9,6 +9,7 @@ export default defineConfig({
     minify: true,
     lib: {
       entry: path.resolve(__dirname, 'src/Components.ts'),
+      // @ts-ignore
       formats: ['es', 'cjs', 'umd', 'amd'],
       name: 'unreal-components',
       fileName: (format) => `unreal-components.${format}.js`
@@ -20,6 +21,6 @@ export default defineConfig({
       }
     },
     target: 'es2015',
-    sourceMap: true
+    sourceMap: false
   }
 })
