@@ -23,9 +23,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Echo version 🙊
-        run: echo "updating version to ${{  github.ref_name }} || $GITHUB_REF_NAME"
+        run: echo "updating version to ${{  github.ref_name }}
       - name: Update version to tag version 👆🏼
-        run: npm version $GITHUB_REF_NAME
+        run: npm version ${{ github.ref_name }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish package on NPM 📦
