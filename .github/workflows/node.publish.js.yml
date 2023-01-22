@@ -22,6 +22,8 @@ jobs:
         run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' > .npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Echo version 🙊
+        run: echo "updating version to ${{  github.ref_name }} || $GITHUB_REF_NAME"
       - name: Update version to tag version 👆🏼
         run: npm version $GITHUB_REF_NAME
         env:
