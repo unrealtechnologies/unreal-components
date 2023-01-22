@@ -1,3 +1,7 @@
+/*
+ * Call this using node version_upgrade.js <version>
+ * version should be formatted in semver version, either 0.0.1 or v0.0.1
+ */
 import packageJson from './package.json' assert { type: 'json' }
 import * as fs from 'fs';
 
