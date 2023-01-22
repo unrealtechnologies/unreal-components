@@ -1,11 +1,17 @@
 {
-  "name": "unreal-components",
+  "name": "@unreal/unreal-components",
   "private": false,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist/unreal-components.cjs.js",
+  "module": "dist/unreal-components.es.js",
+  "types": "dist/Components.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
     "lint-fix": "eslint . --ext .ts,.tsx --fix"
