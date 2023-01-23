@@ -16,7 +16,6 @@ export default defineConfig({
     minify: false,
     lib: {
       entry: path.resolve(__dirname, "src/Components.ts"),
-      // @ts-ignore
       formats: ["es", "cjs", "umd", "amd"],
       name: "unreal-components",
       fileName: (format) => `unreal-components.${format}.js`
