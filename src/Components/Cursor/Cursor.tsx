@@ -117,7 +117,7 @@ export default function Cursor(props: CursorProp) {
     const transformString = `matrix(${cursor.scale}, 0, 0, ${cursor.scale}, ${cursor.x}, ${cursor.y})`
     return (
         <>
-            <div ref={cursorElemRef} className="cursor" style={{
+        <div ref={cursorElemRef} className="cursor" style={{
                     backgroundColor: `${cursor.color}`,
                     display: `${display}`,
                     transform: `${transformString}`

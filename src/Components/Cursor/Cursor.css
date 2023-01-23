@@ -14,7 +14,7 @@
     --tw-text-opacity: 1;
     color: rgb(0 0 0/var(--tw-text-opacity));
     mix-blend-mode: difference;
-    z-index: 9999;
+    z-index: 1000;
 }
 
 .cursor img {
